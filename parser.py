@@ -1,14 +1,28 @@
 from enum import Enum
 
-class Classification(Enum):
-    TRUTHFULPOSITIVE  = 1
-    TRUTHFULNEGATIVE  = 2
-    DECEPTIVEPOSITIVE = 3
-    DECEPTIVENEGATIVE = 4
+class Honesty(Enum):
+    TRUTHFUL = 1
+    DECEPTIVE = 2
+
+    @staticmethod
+    def get(string):
+        if Honesty.TRUTHFUL.name in string:
+            return Honesty.TRUTHFUL
+        return Honesty.DECEPTIVE
+
+class Polarity(Enum):
+    POSITIVE = 1
+    NEGATIVE = 2
+
+    @staticmethod
+    def get(string):
+        if Polarity.POSITIVE.name in string:
+            return Polarity.POSITIVE
+        return Polarity.NEGATIVE
 
 def splitStringWithClassification(string):
     split = string.strip().split("\t")
-    return [Classification[split[0]], split[1]]
+    return [[Honesty.get(split[0]), Polarity.get(split[0])], split[1]]
 
 with open("./train.txt", "r") as f:
     lines = list(map(splitStringWithClassification, f.readlines()))
