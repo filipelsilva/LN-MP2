@@ -4,7 +4,8 @@ import sys
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn import metrics
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -77,9 +78,7 @@ def main():
 
     data = [l[1] for l in train_lines]
     targets = [l[0][0] + l[0][1] for l in train_lines]
-    targets_honesty = [l[0][0] for l in train_lines]
-    targets_polarity = [l[0][1] for l in train_lines]
-    logging.debug(f"{targets}\n{targets_honesty}\n{targets_polarity}")
+    logging.debug(targets)
 
     text_clf = Pipeline([
         ('vect-tfidf', TfidfVectorizer(
@@ -91,7 +90,7 @@ def main():
             penalty='elasticnet',
             alpha=0.0001,
             tol=None,
-            max_iter=10000,
+            max_iter=1000,
             random_state=42, # For reproducibility
         ))
     ])
@@ -99,12 +98,25 @@ def main():
     if sys.argv[1] == "train":
         optimizeParameters(text_clf, data, targets)
 
-    # TODO testing needs to happend on the train lines, need to do split
-    for t in [targets]: #, targets_honesty, targets_polarity]:
-        clf = text_clf.fit(data, t)
-        predicted = clf.predict(test_lines)
-        for doc, category in zip(test_lines, predicted):
-            logging.debug('%r => %s' % (doc, category))
+    data_train, data_test, targets_train, targets_test = train_test_split(
+        data,
+        targets,
+        test_size=0.25,
+        random_state=42 # For reproducibility TODO remove
+    )
+
+    clf = text_clf.fit(data_train, targets_train)
+    predicted = clf.predict(data_test)
+
+    # Print the classification report
+    logging.info(metrics.classification_report(targets_test, predicted))
+
+    # Print and plot the confusion matrix
+    cm = metrics.confusion_matrix(targets_test, predicted)
+    print(cm)
+
+    for doc, category in zip(test_lines, predicted):
+        logging.debug('%r => %s' % (doc, category))
 
 
 if __name__ == "__main__":
