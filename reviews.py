@@ -34,42 +34,35 @@ def splitStringWithClassification(string):
     split = string.strip().split("\t")
     return [[Honesty.get(split[0]), Polarity.get(split[0])], split[1]]
 
-def getData():
+def getLines():
     with open("./train.txt", "r") as f:
         lines = list(map(splitStringWithClassification, f.readlines()))
 
     return lines
 
 def main():
-    data = getData()
+    lines = getLines()
 
-    targets = [d[0] for d in data]
-    targets_honesty = [d[0][0].name for d in data]
-    targets_polarity = [d[0][1].name for d in data]
+    data = [l[1] for l in lines]
+    targets = [l[0] for l in lines]
+    targets_honesty = [l[0][0].name for l in lines]
+    targets_polarity = [l[0][1].name for l in lines]
     logging.debug(targets)
     logging.debug(targets_honesty)
     logging.debug(targets_polarity)
 
-    count_vect = CountVectorizer()
+    text_clf = Pipeline([
+        ('vect', CountVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultinomialNB()),
+    ])
 
-    # Tokenize the text
-    x_train_counts = count_vect.fit_transform([d[1] for d in data])
-    logging.debug(x_train_counts.shape)
-
-    # Apply tf-idf
-    tfidf_transformer = TfidfTransformer()
-    x_train_tfidf = tfidf_transformer.fit_transform(x_train_counts)
-    logging.debug(x_train_tfidf.shape)
-
-    # Train a classifier
     for t in [targets_honesty, targets_polarity]:
-        clf = MultinomialNB().fit(x_train_tfidf, t)
+        clf = text_clf.fit(data, t)
 
         docs_new = ['God is love', 'OpenGL on the GPU is fast']
-        x_new_counts = count_vect.transform(docs_new)
-        x_new_tfidf = tfidf_transformer.transform(x_new_counts)
 
-        predicted = clf.predict(x_new_tfidf)
+        predicted = clf.predict(docs_new)
 
         for doc, category in zip(docs_new, predicted):
             logging.info('%r => %s' % (doc, category))
