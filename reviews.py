@@ -2,8 +2,7 @@ import logging
 import sys
 from enum import Enum
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
@@ -59,8 +58,7 @@ def main():
     logging.debug(targets_polarity)
 
     text_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
+        ('vect-tfidf', TfidfVectorizer()),
         ('clf', MultinomialNB()),
     ])
 
