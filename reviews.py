@@ -9,29 +9,22 @@ from sklearn.pipeline import Pipeline
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(levelname)s[%(lineno)d]: %(message)s')
 
-class Honesty(Enum):
-    TRUTHFUL = 1
-    DECEPTIVE = 2
+HONESTY_CLASSIFICATION = ["TRUTHFUL", "DECEPTIVE"]
+POLARITY_CLASSIFICATION = ["POSITIVE", "NEGATIVE"]
 
-    @staticmethod
-    def get(string):
-        if Honesty.TRUTHFUL.name in string:
-            return Honesty.TRUTHFUL
-        return Honesty.DECEPTIVE
+def getHonesty(string):
+    for h in HONESTY_CLASSIFICATION:
+        if h in string:
+            return h
 
-class Polarity(Enum):
-    POSITIVE = 1
-    NEGATIVE = 2
-
-    @staticmethod
-    def get(string):
-        if Polarity.POSITIVE.name in string:
-            return Polarity.POSITIVE
-        return Polarity.NEGATIVE
+def getPolarity(string):
+    for p in POLARITY_CLASSIFICATION:
+        if p in string:
+            return p
 
 def splitStringWithClassification(string):
     split = string.strip().split("\t")
-    return [[Honesty.get(split[0]), Polarity.get(split[0])], split[1]]
+    return [[getHonesty(split[0]), getPolarity(split[0])], split[1]]
 
 def getTrainFileLines():
     with open("./train.txt", "r") as f:
@@ -51,8 +44,8 @@ def main():
 
     data = [l[1] for l in train_lines]
     targets = [l[0] for l in train_lines]
-    targets_honesty = [l[0][0].name for l in train_lines]
-    targets_polarity = [l[0][1].name for l in train_lines]
+    targets_honesty = [l[0][0] for l in train_lines]
+    targets_polarity = [l[0][1] for l in train_lines]
     logging.debug(targets)
     logging.debug(targets_honesty)
     logging.debug(targets_polarity)
