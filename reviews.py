@@ -24,7 +24,15 @@ def splitStringWithClassification(string):
     split = string.strip().split("\t")
     return [[Honesty.get(split[0]), Polarity.get(split[0])], split[1]]
 
-with open("./train.txt", "r") as f:
-    lines = list(map(splitStringWithClassification, f.readlines()))
+def getData():
+    with open("./train.txt", "r") as f:
+        lines = list(map(splitStringWithClassification, f.readlines()))
 
-print(lines)
+    return lines
+
+def main():
+    data = getData()
+    pass
+
+if __name__ == "__main__":
+    main()
