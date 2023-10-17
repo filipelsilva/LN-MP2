@@ -34,19 +34,26 @@ def splitStringWithClassification(string):
     split = string.strip().split("\t")
     return [[Honesty.get(split[0]), Polarity.get(split[0])], split[1]]
 
-def getLines():
+def getTrainFileLines():
     with open("./train.txt", "r") as f:
         lines = list(map(splitStringWithClassification, f.readlines()))
 
     return lines
 
-def main():
-    lines = getLines()
+def getTestFileLines():
+    with open("./test_just_reviews.txt", "r") as f:
+        lines = list(map(lambda s: s.strip(), f.readlines()))
 
-    data = [l[1] for l in lines]
-    targets = [l[0] for l in lines]
-    targets_honesty = [l[0][0].name for l in lines]
-    targets_polarity = [l[0][1].name for l in lines]
+    return lines
+
+def main():
+    train_lines = getTrainFileLines()
+    test_lines = getTestFileLines()
+
+    data = [l[1] for l in train_lines]
+    targets = [l[0] for l in train_lines]
+    targets_honesty = [l[0][0].name for l in train_lines]
+    targets_polarity = [l[0][1].name for l in train_lines]
     logging.debug(targets)
     logging.debug(targets_honesty)
     logging.debug(targets_polarity)
@@ -60,11 +67,9 @@ def main():
     for t in [targets_honesty, targets_polarity]:
         clf = text_clf.fit(data, t)
 
-        docs_new = ['God is love', 'OpenGL on the GPU is fast']
+        predicted = clf.predict(test_lines)
 
-        predicted = clf.predict(docs_new)
-
-        for doc, category in zip(docs_new, predicted):
+        for doc, category in zip(test_lines, predicted):
             logging.info('%r => %s' % (doc, category))
 
 if __name__ == "__main__":
