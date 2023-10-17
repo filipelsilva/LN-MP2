@@ -10,7 +10,7 @@ from sklearn import metrics
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
-    format='%(levelname)s[%(lineno)d]: %(message)s'
+    format='===== %(levelname)s[%(lineno)d] =====\n%(message)s\n'
 )
 
 HONESTY_CLASSIFICATION = ["TRUTHFUL", "DECEPTIVE"]
@@ -95,14 +95,14 @@ def main():
         ))
     ])
 
-    if sys.argv[1] == "train":
+    if len(sys.argv) > 1 and sys.argv[1] == "train":
         optimizeParameters(text_clf, data, targets)
 
     data_train, data_test, targets_train, targets_test = train_test_split(
         data,
         targets,
         test_size=0.25,
-        random_state=42 # For reproducibility TODO remove
+        random_state=42 # For reproducibility TODO might remove?
     )
 
     clf = text_clf.fit(data_train, targets_train)
