@@ -37,23 +37,27 @@ respective classes. The better defined this hyperplane is, the better
 classification it'll make.
 To classify reviews, our model will train over the provided training dataset 
 and define a hyperplane to distinguish between our classes: 
-	- *TRUTHFULPOSITIVE*
-	- *TRUTHFULNEGATIVE*
-	- *DECEPTIVEPOSITIVE*
-	- *DECEPTIVENEGATIVE*
+
+* *TRUTHFULPOSITIVE*
+
+* *TRUTHFULNEGATIVE*
+
+* *DECEPTIVEPOSITIVE*
+
+* *DECEPTIVENEGATIVE*
 
 We can then feed a review to our model and it'll provide us with a proper 
 classification of that review, according to what it thinks the most fitting 
 label is.
 Our model has a base parameterization as follows:
-	- *penalty*: elasticnet. It combines the regularization techniques known as 
+* *penalty*: elasticnet. It combines the regularization techniques known as 
 	L1 and L2 to provide a balance between them in an effort to provide a more 
 	efficient regularization technique;
-	- *alpha*: 0.0001. This value gives a weight to the penalty applied during 
+* *alpha*: 0.0001. This value gives a weight to the penalty applied during 
 	training;
-	- *tol*: None. Indicates that training will stop once the loss if greater 
+* *tol*: None. Indicates that training will stop once the loss if greater 
 	than the best loss over a predefined number of consecutive rounds;
-	- *max_iter*: 1000. The model will train up to a maximum number of iterations.
+* *max_iter*: 1000. The model will train up to a maximum number of iterations.
 
 ## Experimental Setup and Results
 
@@ -66,7 +70,7 @@ its possible to see a table representing the first 3 metrics. The accuracy
 obtained was 84%.
 
 | Label             | Precision | Recall | F1-score |
------------------------------------------------------
+| ----------------- | --------- | ------ | ---------|
 | DECEPTIVENEGATIVE |    0.84   |  0.82  |   0.83   |
 | DECEPTIVEPOSITIVE |    0.83   |  0.91  |   0.87   |
 | TRUTHFULNEGATIVE  |    0.80   |  0.76  |   0.78   |
@@ -76,8 +80,8 @@ Its also possible to inspect the confusion matrix generated from our model for
 a deeper insight on each label:
 
 | Label             | DECEPTIVENEGATIVE | DECEPTIVEPOSITIVE | TRUTHFULNEGATIVE | TRUTHFULPOSITIVE |
----------------------------------------------------------------------------------------------------
-| DECEPTIVENEGATIVE |         56        |         3        |          9        |         0        |
-| DECEPTIVEPOSITIVE |          2        |        58        |          0        |         4        |
-| TRUTHFULNEGATIVE  |          8        |         0        |         48        |         7        |
-| TRUTHFULPOSITIVE  |          1        |         9        |          3        |        72        |
+| ----------------- | ----------------- | ----------------- | ---------------- | ---------------- |
+| DECEPTIVENEGATIVE |         56        |         3         |         9        |         0        |
+| DECEPTIVEPOSITIVE |          2        |        58         |         0        |         4        |
+| TRUTHFULNEGATIVE  |          8        |         0         |        48        |         7        |
+| TRUTHFULPOSITIVE  |          1        |         9         |         3        |        72        |
