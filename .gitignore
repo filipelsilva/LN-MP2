@@ -3,3 +3,6 @@ results.txt
 
 ### direnv
 .direnv
+
+## virtual environment
+.venv
