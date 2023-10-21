@@ -101,8 +101,8 @@ def main():
     data_train, data_test, targets_train, targets_test = train_test_split(
         data,
         targets,
-        test_size=0.25,
-        random_state=42 # For reproducibility TODO might remove?
+        test_size=0.20,
+        #random_state=42 # For reproducibility TODO might remove?
     )
 
     clf = text_clf.fit(data_train, targets_train)
