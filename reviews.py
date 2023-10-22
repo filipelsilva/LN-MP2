@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.multioutput import ClassifierChain
 from sklearn import metrics
 
 logging.basicConfig(
@@ -13,20 +14,12 @@ logging.basicConfig(
     format='===== %(levelname)s[%(lineno)d] =====\n%(message)s\n'
 )
 
-HONESTY_CLASSIFICATION = ["TRUTHFUL", "DECEPTIVE"]
-POLARITY_CLASSIFICATION = ["POSITIVE", "NEGATIVE"]
-
-
 def getHonesty(string):
-    for h in HONESTY_CLASSIFICATION:
-        if h in string:
-            return h
+    return 1 if "TRUTHFUL" in string else 0
 
 
 def getPolarity(string):
-    for p in POLARITY_CLASSIFICATION:
-        if p in string:
-            return p
+    return 1 if "POSITIVE" in string else 0
 
 
 def splitStringWithClassification(string):
@@ -78,7 +71,7 @@ def main():
     test_lines = getTestFileLines()
 
     data = [l[1] for l in train_lines]
-    targets = [l[0][0] + l[0][1] for l in train_lines]
+    targets = [l[0] for l in train_lines]
     logging.debug(targets)
 
     text_clf = Pipeline([
@@ -86,13 +79,15 @@ def main():
             use_idf=True,
             ngram_range=(1, 2),
         )),
-        ('clf', SGDClassifier(
-            loss='log_loss',
-            penalty=None,
-            alpha=0.0001,
-            tol=0.001,
-            max_iter=10000,
-            # random_state=42, # For reproducibility
+        ('clf', ClassifierChain(
+            SGDClassifier(
+                loss='log_loss',
+                penalty=None,
+                alpha=0.0001,
+                tol=0.001,
+                max_iter=10000,
+                # random_state=42, # For reproducibility
+            )
         ))
     ])
 
@@ -109,17 +104,25 @@ def main():
     clf = text_clf.fit(data_train, targets_train)
     predicted = clf.predict(data_test)
 
+    # The metrics package does not support multioutput, so we have to do it manually
+    t1 = []
+    for el in predicted:
+        t1.append(str(int(el[0])) + str(int(el[1])))
+
+    t2 = []
+    for el in targets_test:
+        t2.append(str(el[0]) + str(el[1]))
+
     # Print the classification report
-    # logging.info(metrics.classification_report(targets_test, predicted))
-    logging.info(metrics.classification_report(targets_test, predicted, output_dict=True)['accuracy'])
+    logging.info(metrics.classification_report(t1, t2))
+    logging.info(metrics.classification_report(t1, t2, output_dict=True)['accuracy'])
 
     # Print and plot the confusion matrix
-    cm = metrics.confusion_matrix(targets_test, predicted)
-    # logging.info(cm)
+    cm = metrics.confusion_matrix(t1, t2)
+    logging.info(cm)
 
-    for doc, category in zip(test_lines, predicted):
-        logging.debug('%r => %s' % (doc, category))
-
+    # Write results to file TODO uncomment
+    # writeResults(clf.predict(test_lines))
 
 if __name__ == "__main__":
     main()
