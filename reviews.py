@@ -87,11 +87,11 @@ def main():
             ngram_range=(1, 2),
         )),
         ('clf', SGDClassifier(
-            loss='log_loss',
-            penalty=None,
-            alpha=1e-5,
-            tol=1e-6,
-            max_iter=1000,
+            loss='hinge',
+            penalty='l2',
+            alpha=0.0001,
+            tol=0.0001,
+            max_iter=10000,
             # random_state=42, # For reproducibility
         ))
     ])
