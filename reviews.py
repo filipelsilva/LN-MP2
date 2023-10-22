@@ -57,14 +57,15 @@ def writeResults(results):
 
 def optimizeParameters(model, data, targets):
     parameters = {
-        # 'vect-tfidf__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
+        'vect-tfidf__use_idf': (True, False),
+        'vect-tfidf__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
+        # 'clf__loss': ('hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'),
         # 'clf__penalty': ('l1', 'l2', 'elasticnet', None),
         # 'clf__alpha': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
-        'clf__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
-        'clf__max_iter': (1000, 100000, 1000000)
+        # 'clf__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
     }
 
-    gs_clf = GridSearchCV(model, parameters, cv=5, n_jobs=-1)
+    gs_clf = GridSearchCV(model, parameters, cv=5, n_jobs=-2)
     gs_clf = gs_clf.fit(data, targets)
     for param_name in sorted(parameters.keys()):
         logging.info("%s: %r" % (param_name, gs_clf.best_params_[param_name]))
@@ -86,34 +87,35 @@ def main():
             ngram_range=(1, 2),
         )),
         ('clf', SGDClassifier(
-            loss='hinge',
-            penalty='elasticnet',
+            loss='log_loss',
+            penalty=None,
             alpha=0.0001,
-            tol=None,
+            tol=0.001,
             max_iter=1000,
-            random_state=42, # For reproducibility
+            # random_state=42, # For reproducibility
         ))
     ])
-
-    if len(sys.argv) > 1 and sys.argv[1] == "train":
-        optimizeParameters(text_clf, data, targets)
 
     data_train, data_test, targets_train, targets_test = train_test_split(
         data,
         targets,
-        test_size=0.20,
-        #random_state=42 # For reproducibility TODO might remove?
+        test_size=0.25,
+        # random_state=42 # For reproducibility TODO might remove?
     )
+
+    if len(sys.argv) > 1 and sys.argv[1] == "train":
+        optimizeParameters(text_clf, data, targets)
 
     clf = text_clf.fit(data_train, targets_train)
     predicted = clf.predict(data_test)
 
     # Print the classification report
-    logging.info(metrics.classification_report(targets_test, predicted))
+    # logging.info(metrics.classification_report(targets_test, predicted))
+    logging.info(metrics.classification_report(targets_test, predicted, output_dict=True)['accuracy'])
 
     # Print and plot the confusion matrix
     cm = metrics.confusion_matrix(targets_test, predicted)
-    print(cm)
+    # logging.info(cm)
 
     for doc, category in zip(test_lines, predicted):
         logging.debug('%r => %s' % (doc, category))
