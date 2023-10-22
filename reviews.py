@@ -57,12 +57,12 @@ def writeResults(results):
 
 def optimizeParameters(model, data, targets):
     parameters = {
-        'vect-tfidf__use_idf': (True, False),
+        # 'vect-tfidf__use_idf': (True, False),
         'vect-tfidf__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
         # 'clf__loss': ('hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'),
-        # 'clf__penalty': ('l1', 'l2', 'elasticnet', None),
-        # 'clf__alpha': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
-        # 'clf__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
+        'clf__penalty': ('l1', 'l2', 'elasticnet', None),
+        'clf__alpha': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
+        'clf__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
     }
 
     gs_clf = GridSearchCV(model, parameters, cv=5, n_jobs=-2)
@@ -89,8 +89,8 @@ def main():
         ('clf', SGDClassifier(
             loss='log_loss',
             penalty=None,
-            alpha=0.0001,
-            tol=0.001,
+            alpha=1e-5,
+            tol=1e-6,
             max_iter=1000,
             # random_state=42, # For reproducibility
         ))
