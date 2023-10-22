@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.multioutput import ClassifierChain
+from sklearn.multioutput import MultiOutputClassifier
 from sklearn import metrics
 
 logging.basicConfig(
@@ -14,12 +14,20 @@ logging.basicConfig(
     format='===== %(levelname)s[%(lineno)d] =====\n%(message)s\n'
 )
 
+HONESTY_CLASSIFICATION = ["TRUTHFUL", "DECEPTIVE"]
+POLARITY_CLASSIFICATION = ["POSITIVE", "NEGATIVE"]
+
+
 def getHonesty(string):
-    return 1 if "TRUTHFUL" in string else 0
+    for h in HONESTY_CLASSIFICATION:
+        if h in string:
+            return h
 
 
 def getPolarity(string):
-    return 1 if "POSITIVE" in string else 0
+    for p in POLARITY_CLASSIFICATION:
+        if p in string:
+            return p
 
 
 def splitStringWithClassification(string):
@@ -52,10 +60,10 @@ def optimizeParameters(model, data, targets):
     parameters = {
         # 'vect-tfidf__use_idf': (True, False),
         # 'vect-tfidf__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
-        'clf__loss': ('hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'),
-        'clf__penalty': ('l1', 'l2', 'elasticnet', None),
-        'clf__alpha': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
-        'clf__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
+        'clf__estimator__loss': ('hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'),
+        'clf__estimator__penalty': ('l1', 'l2', 'elasticnet', None),
+        'clf__estimator__alpha': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
+        'clf__estimator__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
     }
 
     gs_clf = GridSearchCV(model, parameters, cv=5, n_jobs=-2)
@@ -79,13 +87,13 @@ def main():
             use_idf=True,
             ngram_range=(1, 2),
         )),
-        ('clf', ClassifierChain(
+        ('clf', MultiOutputClassifier(
             SGDClassifier(
                 loss='log_loss',
                 penalty=None,
                 alpha=0.0001,
                 tol=0.001,
-                max_iter=10000,
+                max_iter=50000,
                 # random_state=42, # For reproducibility
             )
         ))
@@ -104,25 +112,20 @@ def main():
     clf = text_clf.fit(data_train, targets_train)
     predicted = clf.predict(data_test)
 
-    # The metrics package does not support multioutput, so we have to do it manually
-    t1 = []
-    for el in predicted:
-        t1.append(str(int(el[0])) + str(int(el[1])))
-
-    t2 = []
-    for el in targets_test:
-        t2.append(str(el[0]) + str(el[1]))
+    # As multioutput classifier is still not supported by metrics, we have to join the labels back again
+    predicted_labels = [l[0] + l[1] for l in predicted]
+    targets_labels = [l[0] + l[1] for l in targets_test]
 
     # Print the classification report
-    logging.info(metrics.classification_report(t1, t2))
-    logging.info(metrics.classification_report(t1, t2, output_dict=True)['accuracy'])
+    # logging.info(metrics.classification_report(targets_labels, predicted_labels))
+    logging.info(metrics.classification_report(targets_labels, predicted_labels, output_dict=True)['accuracy'])
 
     # Print and plot the confusion matrix
-    cm = metrics.confusion_matrix(t1, t2)
-    logging.info(cm)
+    cm = metrics.confusion_matrix(targets_labels, predicted_labels)
+    # logging.info(cm)
 
     # Write results to file TODO uncomment
-    # writeResults(clf.predict(test_lines))
+    # writeResults(predicted_labels)
 
 if __name__ == "__main__":
     main()
