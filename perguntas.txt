@@ -1,2 +1,0 @@
-- podemos tratar como dois problemas de classificação, certo? P/N T/D
-- podemos ter vários ficheiros python a dar imports uns aos outros?

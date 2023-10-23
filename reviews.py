@@ -99,6 +99,9 @@ def testOnTrainSet(model, data, targets):
     targets_labels = [l[0] + l[1] for l in targets_test]
     getResults(predicted_labels, targets_labels)
 
+    with open("./test_results.txt", "w") as f:
+        for labels, text in zip(zip(predicted_labels, targets_labels), data_test):
+            f.write(labels[0] + "\t" + labels[1] + "\t" + text + "\n")
 
 def main():
     train_lines = getTrainFileLines()
