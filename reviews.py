@@ -88,8 +88,7 @@ def testOnTrainSet(model, data, targets):
     data_train, data_test, targets_train, targets_test = train_test_split(
         data,
         targets,
-        test_size=0.25,
-        # random_state=42 # For reproducibility TODO might remove?
+        test_size=0.20,
     )
 
     clf = model.fit(data_train, targets_train)
@@ -120,7 +119,6 @@ def main():
                 alpha=0.0001,
                 tol=0.001,
                 max_iter=50000,
-                # random_state=42, # For reproducibility
             )
         ))
     ])
