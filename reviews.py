@@ -77,7 +77,7 @@ def optimizeParameters(model, data, targets):
 def getResults(predicted, targets):
     # Print the classification report
     logging.info(metrics.classification_report(targets, predicted))
-    logging.info(metrics.classification_report(targets, predicted, output_dict=True)['accuracy'])
+    # logging.info(metrics.classification_report(targets, predicted, output_dict=True)['accuracy'])
 
     # Print and plot the confusion matrix
     cm = metrics.confusion_matrix(targets, predicted)

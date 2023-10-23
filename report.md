@@ -1,4 +1,5 @@
 # Truthful vs Deceptive Hotel Reviews - Report
+
 Group 45 - Filipe Silva (95574), Tiago Martins (95678)
 
 ## Models
@@ -79,9 +80,13 @@ obtained was 84%.
 Its also possible to inspect the confusion matrix generated from our model for 
 a deeper insight on each label:
 
-| Label             | DECEPTIVENEGATIVE | DECEPTIVEPOSITIVE | TRUTHFULNEGATIVE | TRUTHFULPOSITIVE |
-| ----------------- | ----------------- | ----------------- | ---------------- | ---------------- |
-| DECEPTIVENEGATIVE |         56        |         3         |         9        |         0        |
-| DECEPTIVEPOSITIVE |          2        |        58         |         0        |         4        |
-| TRUTHFULNEGATIVE  |          8        |         0         |        48        |         7        |
-| TRUTHFULPOSITIVE  |          1        |         9         |         3        |        72        |
+| Predicted\\Actual | DN | DP | TN | TP |
+| ----------------- | -- | -- | -- | -- |
+| DN                | 56 |  3 |  9 |  0 |
+| DP                |  2 | 58 |  0 |  4 |
+| TN                |  8 |  0 | 48 |  7 |
+| TP                |  1 |  9 |  3 | 72 |
+
+### Discussion
+
+### Future work
