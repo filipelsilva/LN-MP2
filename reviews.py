@@ -91,10 +91,10 @@ def main():
         ('clf', MultiOutputClassifier(
             SGDClassifier(
                 loss='hinge',
-                penalty='l2',
+                penalty=None,
                 alpha=0.001,
                 tol=0.0001,
-                max_iter=20000,
+                max_iter=50000,
                 # random_state=42, # For reproducibility
             )
         ))
