@@ -1,6 +1,7 @@
 import logging
 import sys
 
+import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
@@ -60,13 +61,13 @@ def optimizeParameters(model, data, targets):
     parameters = {
         # 'vect-tfidf__use_idf': (True, False),
         # 'vect-tfidf__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
-        'clf__estimator__loss': ('hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron'),
+        'clf__estimator__loss': ('hinge', 'log_loss', 'modified_huber', 'squared_hinge', 'perceptron', 'squared_error', 'huber', 'epsilon_insensitive', 'squared_epsilon_insensitive'),
         'clf__estimator__penalty': ('l1', 'l2', 'elasticnet', None),
         'clf__estimator__alpha': (1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
         'clf__estimator__tol': (None, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6),
     }
 
-    gs_clf = GridSearchCV(model, parameters, cv=5, n_jobs=-2)
+    gs_clf = GridSearchCV(model, parameters, cv=5, n_jobs=-4)
     gs_clf = gs_clf.fit(data, targets)
     for param_name in sorted(parameters.keys()):
         logging.info("%s: %r" % (param_name, gs_clf.best_params_[param_name]))
@@ -78,8 +79,8 @@ def main():
     train_lines = getTrainFileLines()
     test_lines = getTestFileLines()
 
-    data = [l[1] for l in train_lines]
-    targets = [l[0] for l in train_lines]
+    data = np.array([l[1] for l in train_lines])
+    targets = np.array([l[0] for l in train_lines])
     logging.debug(targets)
 
     text_clf = Pipeline([
