@@ -51,7 +51,8 @@ def getTestFileLines():
 
 
 def writeResults(results):
-    logging.debug("WRITING RESULTS: " + results)
+    logging.debug("WRITING RESULTS")
+    logging.debug(results)
     with open("./results.txt", "w") as f:
         for r in results:
             f.write(r + "\n")
@@ -72,12 +73,36 @@ def optimizeParameters(model, data, targets):
     for param_name in sorted(parameters.keys()):
         logging.info("%s: %r" % (param_name, gs_clf.best_params_[param_name]))
 
-    exit(0)
+
+def getResults(predicted, targets):
+    # Print the classification report
+    logging.info(metrics.classification_report(targets, predicted))
+    logging.info(metrics.classification_report(targets, predicted, output_dict=True)['accuracy'])
+
+    # Print and plot the confusion matrix
+    cm = metrics.confusion_matrix(targets, predicted)
+    logging.info(cm)
+
+
+def testOnTrainSet(model, data, targets):
+    data_train, data_test, targets_train, targets_test = train_test_split(
+        data,
+        targets,
+        test_size=0.25,
+        # random_state=42 # For reproducibility TODO might remove?
+    )
+
+    clf = model.fit(data_train, targets_train)
+    predicted = clf.predict(data_test)
+
+    # As multioutput classifier is still not supported by metrics, we have to join the labels back again
+    predicted_labels = [l[0] + l[1] for l in predicted]
+    targets_labels = [l[0] + l[1] for l in targets_test]
+    getResults(predicted_labels, targets_labels)
 
 
 def main():
     train_lines = getTrainFileLines()
-    test_lines = getTestFileLines()
 
     data = np.array([l[1] for l in train_lines])
     targets = np.array([l[0] for l in train_lines])
@@ -100,33 +125,23 @@ def main():
         ))
     ])
 
-    data_train, data_test, targets_train, targets_test = train_test_split(
-        data,
-        targets,
-        test_size=0.25,
-        # random_state=42 # For reproducibility TODO might remove?
-    )
+    if len(sys.argv) > 1:
+        match sys.argv[1]:
+            case "optimize":
+                optimizeParameters(text_clf, data, targets)
+            case "test":
+                testOnTrainSet(text_clf, data, targets)
+        exit(0)
 
-    if len(sys.argv) > 1 and sys.argv[1] == "train":
-        optimizeParameters(text_clf, data, targets)
+    # Run on test set
+    test_lines = getTestFileLines()
 
-    clf = text_clf.fit(data_train, targets_train)
-    predicted = clf.predict(data_test)
-
-    # As multioutput classifier is still not supported by metrics, we have to join the labels back again
+    clf = text_clf.fit(data, targets)
+    predicted = clf.predict(test_lines)
     predicted_labels = [l[0] + l[1] for l in predicted]
-    targets_labels = [l[0] + l[1] for l in targets_test]
 
-    # Print the classification report
-    # logging.info(metrics.classification_report(targets_labels, predicted_labels))
-    logging.info(metrics.classification_report(targets_labels, predicted_labels, output_dict=True)['accuracy'])
-
-    # Print and plot the confusion matrix
-    cm = metrics.confusion_matrix(targets_labels, predicted_labels)
-    # logging.info(cm)
-
-    # Write results to file TODO uncomment
-    # writeResults(predicted_labels)
+    # Write results to file
+    writeResults(predicted_labels)
 
 if __name__ == "__main__":
     main()
