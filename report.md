@@ -7,16 +7,18 @@ Group 45 - Filipe Silva (95574), Tiago Martins (95678)
 ### TD-IDF: Term Frequency times Inverse Document Frequency
 
 The *TF-IDF* statistic is able to capture how important a word is using
-statistical techniques. The *TF* (term frequency) part defines the importance of
-a word by how frequent it is. This is done by counting the number of times a
-word appears in a document, and then dividing it by the total number of words
-present in the respective document. The *IDF* (inverse document frequency) part
-applies a similar concept as *TF* but at the document level. This metric will
-count in how many documents a word appears in and divide it by the total number
-of documents. However, it will apply the inverse function to this frequency to
-assign lower weights to more frequent words (e.g. "the", "a") that don't add
-much value to distinguishing between document labels, and assigns higher weights
-to words that seldom appear.
+statistical techniques. It consists of two parts:
+
+* The *TF* (term frequency) part defines the importance of a word by how
+  frequent it is (*\<number of times the word appears in a document\>*/*\<total
+  number of words present in the respective document\>*);
+* The *IDF* (inverse document frequency) part applies a similar concept as *TF*
+  but at the document level (*\<number of documents where the word
+  appears\>*/*\<total number of documents\>*). However, it will apply the
+  inverse function to this formula, so that more frequent words (e.g. "the",
+  "a") which don't help us distinguishing between document labels have lower
+  weight, and vice-versa for words that seldom appear.
+
 *TF-IDF* multiplies both these metrics to obtain a score for each word that will
 reflect its importance. The higher the score is, the more important the word is.
 
