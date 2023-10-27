@@ -13,7 +13,7 @@ statistical techniques. It consists of two parts:
   frequent it is in a document;
 * The *IDF* (inverse document frequency) part applies a similar concept as *TF*
   but at the document level ($ln({number\_of\_documents \over
-  number\_of\_documents\_where\_the\_word\_appears})$)
+  number\_of\_documents\_where\_the\_word\_appears})$).
   Apart from the natural logarithm, the formula is inverted, so that more
   frequent words (e.g. "the", "a") which don't help us distinguish between
   document labels have lower weight, and words that seldom appear have higher
